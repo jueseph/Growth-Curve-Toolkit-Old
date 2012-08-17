@@ -14,6 +14,7 @@ addParamValue(p,'colorbyplate',false,@islogical);
 addParamValue(p,'dolog',true,@islogical);
 addParamValue(p,'dofit',false,@islogical);
 addParamValue(p,'dobgsub',true,@islogical);
+addParamValue(p,'bgwell','h2',@ischar);
 addParamValue(p,'linestyle',{'o-','markersize',5,'linewidth',1},@iscell);
 
 parse(p,wells,allplates,varargin{:});
@@ -24,6 +25,7 @@ colorbyplate = p.Results.colorbyplate;
 dolog = p.Results.dolog;
 dofit = p.Results.dofit;
 dobgsub = p.Results.dobgsub;
+bgwell = p.Results.bgwell;
 linestyle = p.Results.linestyle;
 
 % plot group
@@ -41,7 +43,8 @@ for k=1:length(wells)
         % background subtraction
         if dobgsub
             % H2 ismedia control
-            ctwell = allplates(p).data{8,2}.OD600;
+            [a,b] = well2coord(bgwell);
+            ctwell = allplates(p).data{a,b}.OD600;
             od_vec = od_vec - median(ctwell(1:10));
             od_vec(od_vec<2e-10) = 2^-10;
         end
