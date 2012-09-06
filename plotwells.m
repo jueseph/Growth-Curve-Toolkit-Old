@@ -1,36 +1,40 @@
-function h = plotwells(wells, allplates, varargin)
+function [h gr] = plotwells(wells, allplates, varargin)
 %   20120730
 %   20120803 updated
 %   tested on [t33] data, added optional params for [t34]
-p = inputParser;
-addRequired(p,'wells',@iscell);
+parser = inputParser;
+addRequired(parser,'wells',@iscell);
 if ischar(wells)
     wells = {wells};
 end
-addRequired(p,'allplates',@isstruct);
-addParamValue(p,'t0',0,@isnumeric);
-addParamValue(p,'xtranslate',[],@(h)isa(h, 'function_handle'));
-addParamValue(p,'colorbyplate',false,@islogical);
-addParamValue(p,'dolog',true,@islogical);
-addParamValue(p,'dofit',false,@islogical);
-addParamValue(p,'dobgsub',true,@islogical);
-addParamValue(p,'bgwell','h2',@ischar);
-addParamValue(p,'linestyle',{'o-','markersize',5,'linewidth',1},@iscell);
+addRequired(parser,'allplates',@isstruct);
+addParamValue(parser,'t0',0,@isnumeric);
+addParamValue(parser,'xtranslate',[],@(h)isa(h, 'function_handle'));
+addParamValue(parser,'colorbyplate',false,@islogical);
+addParamValue(parser,'dolog',true,@islogical);
+addParamValue(parser,'dofit',false,@islogical);
+addParamValue(parser,'dobgsub',true,@islogical);
+addParamValue(parser,'bgval',0,@isnumeric);
+addParamValue(parser,'bgwell','',@(x) true);
+addParamValue(parser,'linestyle',{'o-','markersize',5,'linewidth',1},@iscell);
+addParamValue(parser,'fitwindow',2,@isnumeric);
 
-parse(p,wells,allplates,varargin{:});
-
-t0 = p.Results.t0;
-xtranslate = p.Results.xtranslate;
-colorbyplate = p.Results.colorbyplate;
-dolog = p.Results.dolog;
-dofit = p.Results.dofit;
-dobgsub = p.Results.dobgsub;
-bgwell = p.Results.bgwell;
-linestyle = p.Results.linestyle;
+parse(parser,wells,allplates,varargin{:});
+t0 = parser.Results.t0;
+xtranslate = parser.Results.xtranslate;
+colorbyplate = parser.Results.colorbyplate;
+dolog = parser.Results.dolog;
+dofit = parser.Results.dofit;
+dobgsub = parser.Results.dobgsub;
+bgval = parser.Results.bgval;
+bgwell = parser.Results.bgwell;
+linestyle = parser.Results.linestyle;
+fitwindow = parser.Results.fitwindow;
 
 % plot group
 colors = lines;
 h = [];
+gr = [];
 for k=1:length(wells)
 %     disp(['Now plotting ' wells{k}]);
     [r,c] = well2coord(wells{k});
@@ -42,10 +46,12 @@ for k=1:length(wells)
         
         % background subtraction
         if dobgsub
-            % H2 ismedia control
-            [a,b] = well2coord(bgwell);
-            ctwell = allplates(p).data{a,b}.OD600;
-            od_vec = od_vec - median(ctwell(1:10));
+            if ~isempty(bgwell)
+                [a,b] = well2coord(bgwell);
+                ctwell = allplates(p).data{a,b}.OD600;
+                bgval = median(ctwell(1:min(end,10)));
+            end
+            od_vec = od_vec - bgval;
             od_vec(od_vec<2e-10) = 2^-10;
         end
         
@@ -77,7 +83,8 @@ for k=1:length(wells)
             hold all;
 
             % fit growth rate
-            [fitcoefs fitline] = growthratefit(t_vec, od_vec, 5);
+            [fitcoefs fitline] = growthratefit(t_vec, od_vec, fitwindow);
+            gr(k) = fitcoefs(:,2);
             plot(fitline(:,1),fitline(:,2),'-','linewidth',3,'color',color);
         else
             % x axis is time
@@ -91,6 +98,7 @@ for k=1:length(wells)
     end
 end
 
+labelplot(num2str(gr))
 % ylim([-10, 0 ]);
 % xlim([0 26]);
 % adjust_xticks(-80:8:80,1);

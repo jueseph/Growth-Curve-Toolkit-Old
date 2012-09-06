@@ -3,6 +3,7 @@ function strnames = loadstrainnames(filename)
 %
 %   20120801
 %   20120803 updated to change blank wells to 'EMPTY'
+%   20120821 can now load a sequence of files
 
 strnames=csv2cell(filename);
 if size(strnames,1)<8 || size(strnames,2)<12
