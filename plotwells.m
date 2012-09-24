@@ -79,16 +79,16 @@ for k=1:length(wells)
         % plot growth curve
         if dofit
             % x axis is time
-            h(k) = plot( t_vec, od_vec , '-','linewidth',1,'color',color);
+            h(k,p) = plot( t_vec, od_vec , '-','linewidth',1,'color',color);
             hold all;
 
             % fit growth rate
             [fitcoefs fitline] = growthratefit(t_vec, od_vec, fitwindow);
-            gr(k) = fitcoefs(:,2);
+            gr(k,p) = fitcoefs(:,2);
             plot(fitline(:,1),fitline(:,2),'-','linewidth',3,'color',color);
         else
             % x axis is time
-            h(k) = plot( t_vec, od_vec , linestyle{:}, 'color',color);
+            h(k,p) = plot( t_vec, od_vec , linestyle{:}, 'color',color);
             hold all;
             
             % x axis is read number
@@ -98,7 +98,7 @@ for k=1:length(wells)
     end
 end
 
-labelplot(num2str(gr))
+% labelplot(num2str(gr))
 % ylim([-10, 0 ]);
 % xlim([0 26]);
 % adjust_xticks(-80:8:80,1);

@@ -1,4 +1,5 @@
 function out = labelplot(plotlabel,textoptions)
+%LABELPLOT labels a plot.
 % 20120803
 set(gca,'units','pixels');
 if exist('textoptions')~=1
