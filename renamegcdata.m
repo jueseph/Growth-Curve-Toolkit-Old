@@ -1,5 +1,5 @@
-function renamedata(datadir,oneplate)
-%RENAMEDATA renames growth curve output files
+function renamegcdata(datadir,oneplate)
+%RENAMEGCDATA renames growth curve output files
 % 
 %   Created 20120914
 if exist('oneplate') ~=1
